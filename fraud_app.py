@@ -138,7 +138,7 @@ shap.waterfall_plot(
     max_display=12,
     show=False
 )
-    )
+)
     plt.tight_layout()
     st.pyplot(fig)
     plt.clf()
