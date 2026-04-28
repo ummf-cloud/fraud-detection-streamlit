@@ -112,33 +112,29 @@ if score_btn:
 
     shap_vals = exp.shap_values(X_scored)
 
-# Handle both old (2D) and new (3D) SHAP output shapes
-sv_arr = np.array(shap_vals)
-if sv_arr.ndim == 3:
-    # New SHAP: (n_samples, n_features, n_classes) - take fraud class
-    values_for_plot = sv_arr[0, :, 1] if sv_arr.shape[2] > 1 else sv_arr[0, :, 0]
-    base_val = exp.expected_value[1] if hasattr(exp.expected_value, '__len__') else exp.expected_value
-elif isinstance(shap_vals, list):
-    # Older SHAP: list of arrays per class - take fraud class
-    values_for_plot = shap_vals[1][0] if len(shap_vals) > 1 else shap_vals[0][0]
-    base_val = exp.expected_value[1] if hasattr(exp.expected_value, '__len__') else exp.expected_value
-else:
-    # 2D array
-    values_for_plot = sv_arr[0]
-    base_val = exp.expected_value if not hasattr(exp.expected_value, '__len__') else exp.expected_value[0]
+    # Handle both old (2D) and new (3D) SHAP output shapes
+    sv_arr = np.array(shap_vals)
+    if sv_arr.ndim == 3:
+        values_for_plot = sv_arr[0, :, 1] if sv_arr.shape[2] > 1 else sv_arr[0, :, 0]
+        base_val = exp.expected_value[1] if hasattr(exp.expected_value, '__len__') else exp.expected_value
+    elif isinstance(shap_vals, list):
+        values_for_plot = shap_vals[1][0] if len(shap_vals) > 1 else shap_vals[0][0]
+        base_val = exp.expected_value[1] if hasattr(exp.expected_value, '__len__') else exp.expected_value
+    else:
+        values_for_plot = sv_arr[0]
+        base_val = exp.expected_value if not hasattr(exp.expected_value, '__len__') else exp.expected_value[0]
 
-fig, ax = plt.subplots(figsize=(10, 5))
-shap.waterfall_plot(
-    shap.Explanation(
-        values=values_for_plot,
-        base_values=base_val,
-        data=X_scored.iloc[0].values,
-        feature_names=FEATS
-    ),
-    max_display=12,
-    show=False
-)
-)
+    fig, ax = plt.subplots(figsize=(10, 5))
+    shap.waterfall_plot(
+        shap.Explanation(
+            values=values_for_plot,
+            base_values=base_val,
+            data=X_scored.iloc[0].values,
+            feature_names=FEATS
+        ),
+        max_display=12,
+        show=False
+    )
     plt.tight_layout()
     st.pyplot(fig)
     plt.clf()
